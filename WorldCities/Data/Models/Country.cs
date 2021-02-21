@@ -24,14 +24,14 @@ namespace WorldCities.Data.Models
         /// Country code (in ISO 3166-1 ALPHA-3 format)
         /// </summary>
         public string ISO3 { get; set; }
-        #endregion
+        #endregion Properties
 
         #region Navigation Properties
         /// <summary>
         /// A list containing all the cities related to this country.
         /// </summary>
         public virtual List<City> Cities { get; set; }
-        #endregion
+        #endregion Navigation Properties
 
     }
 }
