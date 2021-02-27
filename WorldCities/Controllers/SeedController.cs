@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +27,7 @@ namespace WorldCities.Controllers
             var path = Path.Combine(_env.ContentRootPath, string.Format("Data/Source/worldcities.xlsx"));
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var ep = new ExcelPackage(stream)) 
                 {
                     //get the first worksheet
