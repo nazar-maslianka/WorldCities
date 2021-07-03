@@ -37,6 +37,14 @@ namespace WorldCities
                     Configuration.GetConnectionString("DefaultConnection")
                     )
                 );
+
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy("CorcPolicy", policy =>
+                {
+                    policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:4200");
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,7 +67,7 @@ namespace WorldCities
             {
                 app.UseSpaStaticFiles();
             }
-
+            app.UseCors("CorcPolicy");
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
@@ -78,7 +86,8 @@ namespace WorldCities
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                    //spa.UseAngularCliServer(npmScript: "start");
                 }
             });
         }
