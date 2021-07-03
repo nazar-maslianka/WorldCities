@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorldCities.Data;
@@ -22,10 +22,26 @@ namespace WorldCities.Controllers
         }
 
         // GET: api/Cities
+        // GET: api/Cities/?pageIndex=0&pageSize=10
+        // GET: api/Cities/?pageIndex=0&pageSize=10&sortColumn=name&sortOrder=asc
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<City>>> GetCities()
+        public async Task<ActionResult<ApiResult<City>>> GetCities(
+            int pageIndex = 0,
+            int pageSize = 10,
+            string sortColumn = null,
+            string sortOrder = null,
+            string filterColumn = null,
+            string filterQuery = null)
         {
-            return await _context.Cities.ToListAsync();
+            return await ApiResult<City>.CreateAsync(
+                _context.Cities,
+                pageIndex, 
+                pageSize,
+                sortColumn,
+                sortOrder,
+                filterColumn,
+                filterQuery
+                );
         }
 
         // GET: api/Cities/5
@@ -105,6 +121,46 @@ namespace WorldCities.Controllers
         private bool CityExists(int id)
         {
             return _context.Cities.Any(e => e.Id == id);
+        }
+
+        [HttpPost]
+        [Route("IsDupeField")]
+        public bool IsDupeField(
+            int countryId,
+            string fieldName,
+            string fieldValue
+            )
+        {
+            switch (fieldName)
+            {
+                case "name":
+                    return _context.Cities.Any(
+                        e => e.Name == fieldValue && e.Id != countryId);
+                case "lat":
+                    var latDecimal = decimal.Parse(fieldValue,
+                        NumberStyles.AllowParentheses |
+                        NumberStyles.AllowLeadingWhite |
+                        NumberStyles.AllowTrailingWhite |
+                        NumberStyles.AllowThousands |
+                        NumberStyles.AllowDecimalPoint |
+                        NumberStyles.AllowLeadingSign
+                        );
+                    return _context.Cities.Any(
+                        e => e.Lat == latDecimal && e.Id != countryId);
+                case "lon":
+                    var lonDecimal = decimal.Parse(fieldValue,
+                        NumberStyles.AllowParentheses |
+                        NumberStyles.AllowLeadingWhite |
+                        NumberStyles.AllowTrailingWhite |
+                        NumberStyles.AllowThousands |
+                        NumberStyles.AllowDecimalPoint |
+                        NumberStyles.AllowLeadingSign
+                        );
+                    return _context.Cities.Any(
+                        e => e.Lon == lonDecimal && e.Id != countryId);
+                default:
+                    return false;
+            };
         }
     }
 }
