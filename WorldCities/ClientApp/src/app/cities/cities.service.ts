@@ -65,13 +65,9 @@ export class CitiesService {
     return this.http.put<City>(url, city);
   }
 
-  isDupeField(fieldName: string, control: AbstractControl, id?: number) {
-        var params = new HttpParams()
-          .set("countryId", (id) ? id.toString() : "0")
-          .set("fieldName", fieldName)
-          .set("fieldValue", control.value);
-        var url = `${this.url}isDupeField/`;
-        return this.http.post<boolean>(url, null, {params});
+  isDupeCity(city: City) {
+        var url = `${this.url}isDupeCity/`;
+        return this.http.post<boolean>(url, city);
   }
 }
 

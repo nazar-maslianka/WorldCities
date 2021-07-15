@@ -7,7 +7,6 @@ import { CitiesComponent } from './cities.component';
 import { CityEditComponent } from './city-edit/city-edit.component';
 import { SharedModule } from '../shared/shared.module';
 
-
 @NgModule({
   declarations: [CitiesComponent, CityEditComponent],
   imports: [
