@@ -1,12 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { error } from 'protractor';
 import { CitiesService } from '../cities.service';
 import { City } from '../city';
 import { Country } from '../../countries/country';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-city-edit',
@@ -28,7 +25,8 @@ export class CityEditComponent {
   // and not NULL when we're editing an existing one.
   id?: number;
 
-  //isDupeCity: boolean;
+  isDupeCity: boolean = false;
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
@@ -37,28 +35,36 @@ export class CityEditComponent {
   ) { }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      name: ['',
-        Validators.required,
-        this.isDupeField("name")
-      ],
-      lat: ['',
-        [
-        Validators.required
-        ],
-        this.isDupeField("lat")
-      ],
-      lon: ['',
-        [
-        Validators.required
-        ],
-        this.isDupeField("lon")
-      ],
-      countryId: ['', Validators.required]
-
-    });
-
+    this.createCityAddEditForm();
     this.loadData();
+  }
+
+  createCityAddEditForm(){
+    this.form = this.fb.group({
+      name: [null,
+        [
+          Validators.required,
+          Validators.pattern('[a-zA-Z\'-\\s]{2,}')
+        ]
+      ],
+      lat: [null,
+        [
+          Validators.required,
+          Validators.pattern('^(-)?\\d+\\.\\d{1,4}$')
+        ]
+      ],
+      lon: [null,
+        [
+          Validators.required,
+          Validators.pattern('^(-)?\\d+\\.\\d{1,4}$')
+        ]
+      ],
+      countryId: [null, 
+        [
+          Validators.required
+        ]
+      ]
+    });
   }
 
   loadData() {
@@ -91,16 +97,18 @@ export class CityEditComponent {
     }, error => console.error(error));
 
   }
-
+  
   onSubmit() {
-    var city = (this.id) ? this.city : <City>{};
-
+    this.city = (this.id) ? this.city : <City>{};
+    this.isDuplicateCity();
+    if(!this.isDupeCity)
+    {
     if (this.id) {
       this.city.name = this.form.get("name").value;
       this.city.lat = this.form.get("lat").value;
-      this.city.lon = this.form.get("lat").value;
+      this.city.lon = this.form.get("lon").value;
       this.city.countryId = this.form.get("countryId").value;
-
+ 
       this.citiesService.edit(this.city).subscribe(result => {
         console.log("City " + this.city.id + " has been updated");
         this.router.navigate(["/cities"]);
@@ -114,14 +122,19 @@ export class CityEditComponent {
         this.router.navigate(["/cities"]);
       }, error => console.error(error));
     }
-  }
-
-  isDupeField(fieldName: string): ValidatorFn {
-    return (control: AbstractControl): Observable<{ [key: string]: any
-    } | null> => {
-      return this.citiesService.isDupeField(fieldName, control, this.id).pipe(map(result => {
-        return result ? { isDupeField: true } : null;
-      })) 
     }
+  }
+  
+  isDuplicateCity() {
+      var city = <City>{};
+      city.id = (this.id !== undefined) ? this.id : 0;
+      city.name = this.form.get("name").value;
+      city.lat = this.form.get("lat").value;
+      city.lon = this.form.get("lon").value;
+      city.countryId = this.form.get("countryId").value;
+    
+      this.citiesService.isDupeCity(city).subscribe(result => {
+        this.isDupeCity = result ? true : false;
+      });
   }
 }

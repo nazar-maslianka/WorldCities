@@ -6,26 +6,32 @@
   <div
        [formGroup]="form"
        (ngSubmit)="onSubmit()">
-       <div *ngIf="form.invalid && form.errors?.isDupeCity"
+       <div *ngIf="isDupeCity"
  class="alert alert-danger">
  <strong>ERROR</strong>:
- A city with the same <i>name</i>, <i>lat</i>,
- <i>lon</i> and <i>country</i> already exists.
+ A city with the same <i>name</i>, <i>country</i> or
+ <i>longitude</i> and <i>latitude</i> already exists.
  </div>
     <app-text-input [type]="'text'"
       id="name"
       formControlName="name"
-      [label]="'City name...'"></app-text-input>
+      [label]="'City name...'"
+      [patternErrorText]="'City name can be 2 or more chars and should contain only english letters, spaces or \''"
+      ></app-text-input>
     
     <app-text-input [type]="'text'"
       id="lat"
       formControlName="lat"
-      [label]="'Latitude...'"></app-text-input>
+      [label]="'Latitude...'"
+      [patternErrorText]="'Latitude requires a positive or negative number with 0-4
+      decimal values'"></app-text-input>
     
     <app-text-input [type]="'text'"
       id="lon"
       formControlName="lon"
-      [label]="'Longitude...'"></app-text-input>
+      [label]="'Longitude...'"
+      [patternErrorText]="'Longitude requires a positive or negative number with 0-4
+      decimal values'"></app-text-input>
 
     <div class="form-group">
       <label for="lon">Country:</label>
