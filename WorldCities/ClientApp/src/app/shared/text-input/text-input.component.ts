@@ -10,12 +10,14 @@ export class TextInputComponent implements OnInit, ControlValueAccessor {
   @ViewChild('input', {static: true}) input: ElementRef;
   @Input() type = 'text';
   @Input() label = 'string';
+  @Input() patternErrorText = 'Invalid pattern.';
 
   constructor(@Self() public controlDir: NgControl) { 
     this.controlDir.valueAccessor = this;
   }
 
   ngOnInit(): void {
+
     const control = this.controlDir.control;
     const validators = control.validator ? [control.validator] : [];
     const asyncValidators = control.asyncValidator ? [control.asyncValidator] : [];
