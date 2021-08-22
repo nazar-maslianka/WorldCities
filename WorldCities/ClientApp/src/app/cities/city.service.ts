@@ -6,28 +6,26 @@ import { City } from './city';
 import { map } from 'rxjs/operators';
 import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { BaseService } from '../shared/services/base.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CitiesService {
+export class CityService 
+  extends BaseService{
 
   url: string;
   constructor(
-    private http: HttpClient,
-    @Inject('BASE_URL') private baseUrl: string
+    http: HttpClient,
+    @Inject('BASE_URL') baseUrl: string
   ) 
   {
+    super(http, baseUrl)
     this.url = this.baseUrl + "api/cities/";
+    
   }
 
-  getById(id: number)
-  {
-    var urlGetById = this.url + id;
-    return this.http.get<City>(urlGetById);
-  }
-
-  getDataByParameters(event: PageEvent, sort: MatSort, defaultSortColumn: string, defaultSortOrder: string, defaultFilterColumn: string, filterQuery: string) {
+  getData<City>(event: PageEvent, sort: MatSort, defaultSortColumn: string, defaultSortOrder: string, defaultFilterColumn: string, filterQuery: string) : Observable<City> {
     var params = new HttpParams()
       .set("pageIndex", event.pageIndex.toString())
       .set("pageSize", event.pageSize.toString())
@@ -54,17 +52,23 @@ export class CitiesService {
     .set("sortColumn", "name");
     return this.http.get<any>(url, { params });
   }
- 
-  add(city: City) {
+  getById(id: number)
+  {
+    var urlGetById = this.url + id;
+    return this.http.get<City>(urlGetById);
+  }
+  get<City>(id: number): Observable<City> {
+    var urlGetById = this.url + id;
+    return this.http.get<City>(urlGetById);
+  }
+  put<City>(item): Observable<City> {
+    var url = this.baseUrl + "api/cities/" + item.id;
+    return this.http.put<City>(url, item);
+  }
+  post<City>(item: City): Observable<City> {
     var url = this.baseUrl + "api/cities/";
-    return this.http.post<City>(url, city);
+    return this.http.post<City>(url, item);
   }
-
-  edit(city: City) {
-    var url = this.baseUrl + "api/cities/" + city.id;
-    return this.http.put<City>(url, city);
-  }
-
   isDupeCity(city: City) {
         var url = `${this.url}isDupeCity/`;
         return this.http.post<boolean>(url, city);

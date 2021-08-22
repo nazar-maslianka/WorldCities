@@ -1,13 +1,14 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Inject, ViewChild } from '@angular/core';
 import { City } from './city';
-import { CountriesService } from '../../app/countries/countries.service';
+import { CountryService } from '../countries/country.service';
 import { MatSort } from '@angular/material/sort'
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { CitiesService } from './cities.service'
+import { CityService } from './city.service'
 import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { ApiResult } from '../shared/models/api-result';
 
 @Component({
   selector: 'app-cities',
@@ -17,7 +18,7 @@ import { Observable } from 'rxjs';
 export class CitiesComponent {
 
   public cities: MatTableDataSource<City>;
-  public displayedColumns: string[] = ['id', 'name', 'lat', 'lon'];
+  public displayedColumns: string[] = ['id', 'name', 'lat', 'lon', 'countryName'];
 
   defaultPageIndex: number = 0;
   defaultPageSize: number = 10;
@@ -32,7 +33,7 @@ export class CitiesComponent {
 
   constructor(
     private http: HttpClient,
-    private citiesService: CitiesService) {
+    private citiesService: CityService) {
     this.citiesService = citiesService;
   }
 
@@ -47,11 +48,14 @@ export class CitiesComponent {
     if (query) {
       this.filterQuery = query;
     }
+    else if(query === "" && this.filterQuery !== null){
+      this.filterQuery = null;
+    }   
     this.getData(pageEvent);
   }
 
   getData(event: PageEvent){
-    return this.citiesService.getDataByParameters(event, this.sort, this.defaultSortColumn, this.defaultSortOrder, this.defaultFilterColumn, this.filterQuery)
+    return this.citiesService.getData<ApiResult<City>>(event, this.sort, this.defaultSortColumn, this.defaultSortOrder, this.defaultFilterColumn, this.filterQuery)
         .subscribe(result => {
         this.paginator.length = result.totalItemsCount;
         this.paginator.pageSize = result.pageSize;

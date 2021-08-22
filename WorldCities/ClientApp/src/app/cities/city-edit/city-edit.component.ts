@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CitiesService } from '../cities.service';
+import { CityService } from '../city.service';
 import { City } from '../city';
 import { Country } from '../../countries/country';
 
@@ -27,10 +27,13 @@ export class CityEditComponent {
 
   isDupeCity: boolean = false;
 
+  // Activity Log (for debugging purposes)
+  activityLog: string = '';
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private citiesService: CitiesService, 
+    private citiesService: CityService, 
     private activatedRoute: ActivatedRoute
   ) { }
 
@@ -44,7 +47,7 @@ export class CityEditComponent {
       name: [null,
         [
           Validators.required,
-          Validators.pattern('[a-zA-Z\'-\\s]{2,}')
+          Validators.pattern('[a-zA-Z\‘-\\s]{2,}')
         ]
       ],
       lat: [null,
@@ -103,25 +106,24 @@ export class CityEditComponent {
     this.isDuplicateCity();
     if(!this.isDupeCity)
     {
-    if (this.id) {
       this.city.name = this.form.get("name").value;
       this.city.lat = this.form.get("lat").value;
       this.city.lon = this.form.get("lon").value;
       this.city.countryId = this.form.get("countryId").value;
- 
-      this.citiesService.edit(this.city).subscribe(result => {
-        console.log("City " + this.city.id + " has been updated");
-        this.router.navigate(["/cities"]);
-      }, error => console.error(error));
-    }
+      if (this.id) {
+        this.citiesService.put(this.city).subscribe(result => {
+          console.log("City " + this.city.id + " has been updated");
+          this.router.navigate(["/cities"]);
+        }, error => console.error(error));
+      }
 
-    else
-    {
-      this.citiesService.add(this.city).subscribe(result => {
-        console.log("City " + result.id + " has been added");
-        this.router.navigate(["/cities"]);
-      }, error => console.error(error));
-    }
+      else
+      {
+        this.citiesService.post(this.city).subscribe(result => {
+          console.log("City " + result.id + " has been added");
+          this.router.navigate(["/cities"]);
+        }, error => console.error(error));
+      }
     }
   }
   
