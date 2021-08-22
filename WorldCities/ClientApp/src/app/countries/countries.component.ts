@@ -4,7 +4,8 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { error } from 'protractor';
-import { CountriesService } from './countries.service';
+import { ApiResult } from '../shared/models/api-result';
+import { CountryService } from './country.service';
 import { Country } from './country';
 
 @Component({
@@ -15,7 +16,7 @@ import { Country } from './country';
 export class CountriesComponent implements OnInit {
 
   public countries: MatTableDataSource<Country>;
-  public displayedColumns: string[] = ["id", "name", "iso2", "iso3"];
+  public displayedColumns: string[] = ["id", "name", "iso2", "iso3", 'totCities'];
 
   defaultPageIndex: number = 0;
   defaultPageSize: number = 10;
@@ -30,7 +31,7 @@ export class CountriesComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private countriesService: CountriesService) {
+    private countriesService: CountryService) {
     this.countriesService = countriesService;
   }
 
@@ -46,16 +47,20 @@ export class CountriesComponent implements OnInit {
     if (query) {
       this.filterQuery = query;
     }
+    else if(query === "" && this.filterQuery !== null){
+      this.filterQuery = null;
+    }   
     this.getData(pageEvent);
   }
 
   getData(event: PageEvent){
-    return this.countriesService.getData(event, this.sort, this.defaultSortColumn, this.defaultSortOrder, this.defaultFilterColumn, this.filterQuery)
+    var res = this.countriesService.getData<ApiResult<Country>>(event, this.sort, this.defaultSortColumn, this.defaultSortOrder, this.defaultFilterColumn, this.filterQuery)
       .subscribe(result => {
         this.paginator.length = result.totalItemsCount;
         this.paginator.pageSize = result.pageSize;
         this.paginator.pageIndex = result.pageIndex;
         this.countries = new MatTableDataSource<Country>(result.data);
     }, error => console.error(error))
+    return res;
   }
 }
