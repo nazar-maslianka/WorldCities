@@ -4,26 +4,30 @@ import { Constructor } from '@angular/material/core/common-behaviors/constructor
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { type } from 'os';
-import { isNumber, isObject, isString } from 'util';
+import { Observable } from 'rxjs';
+import { BaseService } from '../shared/services/base.service';
+import { Country } from './country';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CountriesService {
+export class CountryService
+  extends BaseService{
 
   url: string;
   constructor(
-    private http: HttpClient,
-    @Inject('BASE_URL') private baseUrl: string
+    http: HttpClient,
+    @Inject('BASE_URL') baseUrl: string
   )
   {
-    this.url = this.baseUrl + 'api/countries';
+    super(http, baseUrl);
+    this.url = this.baseUrl + 'api/countries/';
   }
 
-  public getData(pageSize: string, sortColumn: string);
-  public getData(event: PageEvent, sort: MatSort, defaultSortColumn: string, defaultSortOrder: string, defaultFilterColumn: string, filterQuery: string);
+  getData<ApiResult>(pageSize: string, sortColumn: string) : Observable<ApiResult>;
+  getData<ApiResult>(event: PageEvent, sort: MatSort, defaultSortColumn: string, defaultSortOrder: string, defaultFilterColumn: string, filterQuery: string) : Observable<ApiResult>;
 
-  public getData(args: PageEvent | string, argsSort: MatSort | string, defaultSortColumn?: string, defaultSortOrder?: string, defaultFilterColumn?: string, filterQuery?: string) {
+  getData<ApiResult>(args: PageEvent | string, argsSort: MatSort | string, defaultSortColumn?: string, defaultSortOrder?: string, defaultFilterColumn?: string, filterQuery?: string): Observable<ApiResult> {
     var params = new HttpParams();
     switch (typeof(args)) {
       case 'object':
@@ -63,6 +67,30 @@ export class CountriesService {
         .set("filterQuery", filterQuery);
     }
    
-    return this.http.get<any>(this.url, { params });
+    return this.http.get<ApiResult>(this.url, { params });;
+  }
+
+  get<Country>(id: number): Observable<Country> {
+    var urlGetById = this.url + id;
+    return this.http.get<Country>(urlGetById);
+  }
+
+  put<Country>(item): Observable<Country> {
+    var url = this.url + `${item.id}`;
+    return this.http.put<Country>(url, item);
+  }
+  post<Country>(item): Observable<Country> {
+    return this.http.post<Country>(this.url, item);
+  }
+
+  isDupeField(name: string, value: string, id?: number)
+  {
+    var url = `${this.url}isDupeField/`;
+    var params = new HttpParams()
+      .set("countryId", id ? id.toString() : "0")
+      .set("fieldName", name)
+      .set("fieldValue", value)
+
+    return this.http.post<boolean>(url, null, {params});
   }
 }
