@@ -1,0 +1,52 @@
+<div class="country-edit">
+    <h1>{{title}}</h1>
+    <div
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()">
+    <app-text-input [type]="'text'"
+        id="name"
+        formControlName="name"
+        (focusout)="isDupeField($event)"
+        [label]="'Country name...'"
+        [errorText]="'Name already exists: please choose another.'"
+        [patternErrorText]="'Country name can be 2 or more chars and should contain only english letters, spaces or \''"
+    ></app-text-input>
+    <app-text-input [type]="'text'"
+        id="iso2"
+        formControlName="iso2"
+        (focusout)="isDupeField($event)"
+        [label]="'2 letters country code...'"
+        [errorText]="'This ISO 3166-1 ALPHA-2 country code already exist:
+          please choose another.'"
+        [patternErrorText]="'ISO 3166-1 ALPHA-2 country code requires 2 letters.'"
+    ></app-text-input>
+    <app-text-input [type]="'text'"
+        id="iso3"
+        formControlName="iso3"
+        (focusout)="isDupeField($event)"
+        [label]="'3 letters country code...'"
+        [errorText]="'This ISO 3166-1 ALPHA-3 country code already exist:
+        please choose another.'"
+        [patternErrorText]="'ISO 3166-1 ALPHA-3 country code requires 3 letters.'"
+    ></app-text-input>
+    <div class="commands">
+        <button type="submit"
+            (click)="onSubmit()"
+            [disabled]="form.invalid"
+            class="btn btn-success">
+        Save
+        </button>
+        <button *ngIf="!id"
+            type="submit"
+            (click)="onSubmit()"
+            [disabled]="form.invalid"
+            class="btn btn-success">
+        Create
+        </button>
+        <button type="submit"
+            [routerLink]="['/countries']"
+            class="btn btn-default">
+        Cancel
+        </button>
+    </div>
+</div>
