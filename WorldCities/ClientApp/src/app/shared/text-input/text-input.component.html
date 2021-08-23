@@ -4,7 +4,7 @@
             ? !controlDir.control.valid ? 'is-invalid' : 'is-valid' : null"
         [type]="type"
         (input)="onChange($event.target.value)"
-        (blur)="onTouched()"
+        (blur)="onBlur()"
         #input
         class="form-control form-control-lg"
         placeholder="{{label}}"
@@ -14,6 +14,7 @@
     <div class="invalid-feedback" *ngIf="(controlDir && controlDir.control && !controlDir?.control?.valid && controlDir?.control?.touched)">
         <span *ngIf="controlDir.control.errors?.required">{{label}} is required</span>
         <span *ngIf="controlDir.control.errors?.pattern">{{patternErrorText}}</span>
+        <span *ngIf="controlDir.control.errors?.isDupedField && errorText !== null">{{errorText}}</span>
     </div>
 
     <div class="invalid-feedback d-block" *ngIf="(controlDir && controlDir.control && !controlDir?.control?.valid && controlDir?.control?.dirty)" >

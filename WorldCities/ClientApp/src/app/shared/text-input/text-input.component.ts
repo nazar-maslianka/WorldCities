@@ -10,14 +10,14 @@ export class TextInputComponent implements OnInit, ControlValueAccessor {
   @ViewChild('input', {static: true}) input: ElementRef;
   @Input() type = 'text';
   @Input() label = 'string';
+  @Input() errorText = null;
   @Input() patternErrorText = 'Invalid pattern.';
-
+  
   constructor(@Self() public controlDir: NgControl) { 
     this.controlDir.valueAccessor = this;
   }
 
   ngOnInit(): void {
-
     const control = this.controlDir.control;
     const validators = control.validator ? [control.validator] : [];
     const asyncValidators = control.asyncValidator ? [control.asyncValidator] : [];
@@ -29,7 +29,7 @@ export class TextInputComponent implements OnInit, ControlValueAccessor {
 
   onChange(event) {}
 
-  onTouched() {}
+  onBlur() {}
 
   writeValue(obj: any): void {
     this.input.nativeElement.value = obj || '';
@@ -40,6 +40,6 @@ export class TextInputComponent implements OnInit, ControlValueAccessor {
   }
 
   registerOnTouched(fn: any): void {
-    this.onTouched = fn;
+    this.onBlur = fn;
   }
 }
