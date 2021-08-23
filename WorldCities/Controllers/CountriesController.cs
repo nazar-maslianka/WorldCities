@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorldCities.Data;
 using WorldCities.Data.Models;
+using WorldCities.Data.DTOModels;
 
 namespace WorldCities.Controllers
 {
@@ -23,7 +22,7 @@ namespace WorldCities.Controllers
 
         // GET: api/Countries
         [HttpGet]
-        public async Task<ActionResult<ApiResult<Country>>> GetCountries(
+        public async Task<ActionResult<ApiResult<CountryDTO>>> GetCountries(
             int pageIndex = 0,
             int pageSize = 10,
             string sortColumn = null,
@@ -32,8 +31,16 @@ namespace WorldCities.Controllers
             string filterQuery = null
             )
         {
-            return await ApiResult<Country>.CreateAsync(
-                _context.Countries,
+            return await ApiResult<CountryDTO>.CreateAsync(
+                _context.Countries
+                .Select(c => new CountryDTO
+                {
+                    Id = c.Id,
+                    ISO2 = c.ISO2,
+                    ISO3 = c.ISO3,
+                    Name = c.Name,
+                    TotCities = c.Cities.Count
+                }),
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -115,6 +122,21 @@ namespace WorldCities.Controllers
             await _context.SaveChangesAsync();
 
             return country;
+        }
+
+        // GET: api/Countries/IsDupeField
+        [HttpPost]
+        [Route("IsDupeField")]
+        public bool IsDupeField(
+            int countryId, 
+            string fieldName, 
+            string fieldValue) 
+        {
+            return ApiResult<Country>.IsValidProperty(fieldName, true)
+                ? _context.Countries.Any(string.Format("{0} == @0 && Id != @1", fieldName),
+                fieldValue,
+                countryId)
+                : false;
         }
 
         private bool CountryExists(int id)
