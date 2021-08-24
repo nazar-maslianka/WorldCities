@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
-
+using WorldCities.Data.Helpers;
 
 namespace WorldCities.Data
 {
@@ -98,7 +98,13 @@ namespace WorldCities.Data
             source = source
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize);
-            
+
+            #if DEBUG
+            {
+                var sql = source.ToSql();
+            }
+            #endif
+
             var data = await source.ToListAsync();
             return new ApiResult<T>(
                 data,
@@ -111,7 +117,7 @@ namespace WorldCities.Data
                 filterQuery);
         }
 
-        private static bool IsValidProperty(
+        public static bool IsValidProperty(
             string propertyName,
             bool throwExceptionNotFound = true)
         {
@@ -132,9 +138,9 @@ namespace WorldCities.Data
 
             return prop != null;
         }
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
         /// <summary>
         /// The data result
         /// </summary>
@@ -196,6 +202,6 @@ namespace WorldCities.Data
         /// (to be used within the given FilterColumn)
         /// </summary>
         public string FilterQuery { get; set; }
-        #endregion
+#endregion
     }
 }
