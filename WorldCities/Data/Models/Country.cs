@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WorldCities.Data.Models
 {
@@ -20,12 +21,12 @@ namespace WorldCities.Data.Models
         /// <summary>
         /// Country code (in ISO 3166-1 ALPHA-2 format)
         /// </summary>
-        [JsonPropertyName("iso2")]
+        [JsonProperty("iso2")]
         public string ISO2 { get; set; }
         /// <summary>
         /// Country code (in ISO 3166-1 ALPHA-3 format)
         /// </summary>
-        [JsonPropertyName("iso3")]
+        [JsonProperty("iso3")]
         public string ISO3 { get; set; }
         #endregion Properties
 
@@ -33,6 +34,7 @@ namespace WorldCities.Data.Models
         /// <summary>
         /// A list containing all the cities related to this country.
         /// </summary>
+        [JsonIgnore]
         public virtual List<City> Cities { get; set; }
         #endregion Navigation Properties
 
